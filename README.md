@@ -1,2 +1,2 @@
 # adversarial-feedback-chatbot
-EMNLP 2020 finding paper "You could have said that instead: Improving Chatbots with Natural Language Feedback"
+EMNLP 2020 findings paper "Learning Improvised Chatbots from Adversarial Modifications of Natural Language Feedback"
