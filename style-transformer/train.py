@@ -255,7 +255,7 @@ def f_step(config, model_F, model_D, optimizer_F, batch, temperature, drop_decay
 
     adv_labels = adv_labels.squeeze(1)
     adv_loss = loss_fn(adv_log_probs, adv_labels)
-    adv_loss = adv_loss.sum()
+    adv_loss = adv_loss.sum() / batch_size
     adv_loss *= config.adv_factor
         
     (cyc_rec_loss + adv_loss).backward()
@@ -372,20 +372,9 @@ def train(config, model_F, model_D, train_iters, dev_iters, test_iters):
             #save model
             torch.save(model_F.state_dict(), config.save_folder + '/ckpts/' + str(global_step) + '_F.pth')
             torch.save(model_D.state_dict(), config.save_folder + '/ckpts/' + str(global_step) + '_D.pth')
-
-        # pdb.set_trace()
-        for i, batch in enumerate(test_iters):
-            predictions = test_step(config, model_F, batch)
-            print('*' * 20, '********', '*' * 20)
-            print('[preditions ]', predictions['preds'])
-            print('[target ]', predictions['target'])
-
-
 '''            auto_eval(config, model_F, test_iters, global_step, temperature)
             #for path, sub_writer in writer.all_writers.items():
             #    sub_writer.flush()
-
-            
 
 
 # :TODO replace this with bert discriminator
@@ -513,26 +502,3 @@ def auto_eval(config, model_F, test_iters, global_step, temperature):
         
     model_F.train()
 '''
-
-def test_step(config, model_F, batch):
-    generated_ids = model_F.model.generate(
-        batch["source_ids"].to(config.device),
-        attention_mask=batch["source_mask"].to(config.device),
-        num_beams=1,
-        max_length=25,
-        min_length=5,
-        repetition_penalty=4.0,
-        length_penalty=2.0,
-        early_stopping=True,
-    )
-    preds = [
-        model_F.tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=True)
-        for g in generated_ids
-    ]
-    target = [
-        model_F.tokenizer.decode(t.to(config.device), skip_special_tokens=True, clean_up_tokenization_spaces=True)
-        for t in batch["target_ids"]
-    ]
-
-    return {"preds": preds, "target": target}
-

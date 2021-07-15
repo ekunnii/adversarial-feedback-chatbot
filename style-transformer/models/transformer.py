@@ -32,8 +32,14 @@ class StyleTransformer(nn.Module):
             load_pretrained_embed,
         )
         self.sos_token = nn.Parameter(torch.randn(d_model))
-        self.encoder = Encoder(num_layers, d_model, len(vocab), h, dropout)
-        self.decoder = Decoder(num_layers, d_model, len(vocab), h, dropout)
+        # self.encoder = Encoder(num_layers, d_model, len(vocab), h, dropout)
+        # self.decoder = Decoder(num_layers, d_model, len(vocab), h, dropout)
+        
+        # config.output_dir='feedback_sum'
+        # config.do_predict=True
+        # config.max_source_length=1024
+        # config.max_target_length=56
+        # config.data_dir="feedback"
 
         self.bart_model = BartSystem(config)
         self.trainer = generic_train(model, args)

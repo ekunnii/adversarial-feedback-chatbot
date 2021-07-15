@@ -21,13 +21,12 @@ class BartSystem(BaseTransformer):
     def __init__(self, hparams):
         super(BartSystem, self).__init__(hparams, num_labels=None, mode=self.mode)
         self.configure_optimizers()
-        # self.add_style_token()
 
     def add_style_token(self):
         # https://github.com/huggingface/transformers/issues/1413
-        self.tokenizer.add_tokens(["[style1]", "[style2]"])
+        self.tokenier.add_tokens(["NEW_TOKEN_FeedBack"])
         self.model.resize_token_embeddings(len(self.tokenizer))  
-        # print(self.model.shared.word_embeddings.weight[-2, :])
+        print(model.shared.word_embeddings.weight[-1, :])
 
     def forward(
         self, input_ids, attention_mask=None, decoder_input_ids=None, decoder_attention_mask=None, lm_labels=None

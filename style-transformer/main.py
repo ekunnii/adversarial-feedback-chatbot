@@ -59,14 +59,7 @@ class Config():
     max_target_length=56
     data_dir="feedback"
 
-def get_n_params(model):
-    pp=0
-    for p in list(model.parameters()):
-        nn=1
-        for s in list(p.size()):
-            nn = nn*s
-        pp += nn
-    return pp
+
 
 def main():
     config = Config()
@@ -75,16 +68,17 @@ def main():
     parser = BartSystem.add_model_specific_args(parser, os.getcwd())
     args = parser.parse_args()
 
-    model_F = BartSystem(args).to(config.device)
-    # Don't use the trainer to fit the model
+    # if not args.output_dir:
+    #     args.output_dir = os.path.join("./results", f"{args.task}_{args.model_type}_{time.strftime('%Y%m%d_%H%M%S')}",)
+    #     os.makedirs(args.output_dir)
     args.do_train = False
+    model_F = BartSystem(args).to(config.device)
     trainer = generic_train(model_F, args)
     if args.output_dir:
         try:
             checkpoints = list(sorted(glob.glob(os.path.join(args.output_dir, "checkpointepoch=*.ckpt"), recursive=True)))
             if checkpoints[-1]:
                 BartSystem.load_from_checkpoint(checkpoints[-1])
-                print("Load checkpoint sucessfully!")
         except:
             print("Failed to load checkpoint!")
     
@@ -93,9 +87,6 @@ def main():
     model_D = Discriminator(config, model_F.tokenizer).to(config.device)
 
     print(config.discriminator_method)
-    import pdb
-    pdb.set_trace()
-    print(model_D)
 
     train(config, model_F, model_D, train_iters, dev_iters, test_iters)
     
